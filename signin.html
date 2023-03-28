@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css"/>
+    <title>Document</title>
+</head>
+<body>
+  <div class="topnav">
+    <a href="http://127.0.0.1:5500/index.html#home">Home</a>
+    </div>
+    <h2 class="text">SignIn Form</h2>
+<main>
+    <form role =" form" onsubmit="signIn(event);" >
+     
+      <div class="form-group">
+        <label><b> Email:</b></label>
+       <input type="text" name="email" id="email" placeholder="Email"  required>
+      </div>
+
+    
+      <div class="form-group">
+        <label><b> Password:</b></label>
+       <input type="password" name="pwd" id="pwd" placeholder="Password" required>
+      </div>
+          <input type="checkbox" checked="checked" name="remember"> Remember me
+      <div class="form-group">
+      <button type="submit"> Logged-In</button>
+    </div>
+        <p> Don't have an account? <a href=" http://127.0.0.1:5500/signUp.html"> Sign Up</a> here</p>
+
+    </form>
+  </main>
+    <script src="./form.js"></script>
+</body>
+</html>
