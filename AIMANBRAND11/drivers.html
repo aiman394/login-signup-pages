@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver</title>
+    <style>
+      /* Body styling */
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Heading styling */
+h1 {
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+/* Button styling */
+button {
+  font-size: 18px;
+  padding: 10px 20px;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+/* Form styling */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 24px;
+  margin-bottom: 10px;
+} 
+
+
+input[type=text],
+input[type=number], input[type="date"] {
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 2px solid #ccc;
+  /* width: 100%; */
+  width: 100px;
+  margin-bottom: 10px;
+}
+
+input[type=submit] {
+  font-size: 18px;
+  padding: 10px 20px;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Driver list styling */
+#driver-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+div {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-left: 15%;
+  width: 60%;
+}
+
+.delete-driver-button {
+  font-size: 15px;
+  padding: 3px 10px;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Summary styling */
+p {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+#driver-count,
+#total-salary {
+  color: #4CAF50;
+}
+
+    </style>
+</head>
+<body>
+  <h1>ڈرائیورز</h1>
+  <button id="add-driver-button">ڈرائیور شامل کریں۔ </button>
+  <div id="driver-list"></div>
+
+  <p style="font-size: 30px; font-weight: bold;">کل ڈرائیورز : <span id="driver-count">0</span></p>
+  <p style="font-size: 30px; font-weight: bold;">کل تنخواہ : <span id="total-salary">0</span></p>
+
+  <script>
+    const driverList = document.getElementById("driver-list");
+    const driverCount = document.getElementById("driver-count");
+    const totalSalary = document.getElementById("total-salary");
+    const addDriverButton = document.getElementById("add-driver-button");
+    const localStorageKey = "driver_data";
+    let driverData = [];
+
+    function renderDriverList() {
+      let html = "";
+      let salarySum = 0;
+      driverData.forEach((driver, index) => {
+        const extraMoney = driver.extraMoney || 0;
+        const date = driver.date || "";
+        html += `
+          <div>
+            <span>نام: ${driver.name} <br> تنخواہ: ${driver.salary} <br> اضافی رقم : ${extraMoney} <br> تاریخ: ${date}</span>
+            <button class="delete-driver-button" data-index="${index}">Delete</button>
+            <button class="add-extra-money-button" data-index="${index}">اضافی رقم شامل کریں۔  </button>
+          </div>
+        `;
+        salarySum += driver.salary + extraMoney;
+      });
+      driverList.innerHTML = html;
+      driverCount.textContent = driverData.length;
+      totalSalary.textContent = salarySum;
+      localStorage.setItem(localStorageKey, JSON.stringify(driverData));
+    }
+
+    function handleAddDriver() {
+      const form = document.createElement("form");
+      const nameLabel = document.createElement("label");
+      const nameInput = document.createElement("input");
+      const salaryLabel = document.createElement("label");
+      const salaryInput = document.createElement("input");
+      const submitButton = document.createElement("button");
+
+      nameLabel.textContent = " ڈرائیور کا نام: ";
+      nameInput.type = "text";
+      nameInput.name = "name";
+
+
+      salaryLabel.textContent = " ڈرائیور کی تنخواہ: ";
+      salaryInput.type = "number";
+      salaryInput.name = "salary";
+
+      submitButton.type = "submit";
+      submitButton.textContent = "ڈرائیور ایڈ ";
+
+      form.appendChild(nameLabel);
+      form.appendChild(nameInput);
+      form.appendChild(document.createElement("br"));
+      form.appendChild(salaryLabel);
+      form.appendChild(salaryInput);
+      form.appendChild(document.createElement("br"));
+      form.appendChild(submitButton);
+    
+      form.addEventListener("submit", function(event) {
+        event.preventDefault();
+        const name = nameInput.value;
+        const salary = parseFloat(salaryInput.value);
+        if (!name || isNaN(salary)) {
+          alert("Invalid input!");
+          return;
+        }
+        driverData.push({ name, salary });
+        renderDriverList();
+        form.remove();
+      });
+
+      addDriverButton.insertAdjacentElement("afterend", form);
+    }
+
+    function handleAddExtraMoney(event) {
+  const index = parseInt(event.target.getAttribute("data-index"));
+  const driver = driverData[index];
+  const form = document.createElement("form");
+  const extraMoneyLabel = document.createElement("label");
+  const extraMoneyInput = document.createElement("input");
+  const dateLabel = document.createElement("label");
+  const dateInput = document.createElement("input");
+  const submitButton = document.createElement("button");
+
+  extraMoneyLabel.textContent = "اضافی رقم : ";
+  extraMoneyInput.type = "number";
+  extraMoneyInput.name = "extraMoney";
+
+  dateLabel.textContent = "date: ";
+  dateInput.type = "date";
+  dateInput.name = "date";
+
+  submitButton.type = "submit";
+  submitButton.textContent = "اضافی رقم شامل کریں  ";
+
+  form.appendChild(extraMoneyLabel);
+  form.appendChild(extraMoneyInput);
+  form.appendChild(document.createElement("br"));
+  form.appendChild(dateLabel);
+  form.appendChild(dateInput);
+  form.appendChild(document.createElement("br"));
+  form.appendChild(submitButton);
+
+  form.addEventListener("submit", function(event) {
+    event.preventDefault();
+    const extraMoney = parseFloat(extraMoneyInput.value);
+    const date = dateInput.value;
+    if (isNaN(extraMoney) || !date) {
+      alert("Invalid input!");
+      return;
+    }
+    driver.extraMoney = extraMoney;
+    driver.date = date;
+    renderDriverList();
+    form.remove();
+  });
+
+  addDriverButton.insertAdjacentElement("afterend", form);
+}
+
+function handleDeleteDriver(event) {
+  const index = parseInt(event.target.getAttribute("data-index"));
+  driverData.splice(index, 1);
+  renderDriverList();
+}
+
+addDriverButton.addEventListener("click", handleAddDriver);
+
+driverList.addEventListener("click", function(event) {
+  if (event.target.classList.contains("add-extra-money-button")) {
+    handleAddExtraMoney(event);
+  } else if (event.target.classList.contains("delete-driver-button")) {
+    handleDeleteDriver(event);
+  }
+});
+
+// Load driver data from localStorage, if available
+const storedData = localStorage.getItem(localStorageKey);
+if (storedData) {
+  driverData = JSON.parse(storedData);
+  renderDriverList();
+}
+</script>
+</body>
+
+
+
+
+
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expenses</title>
+<style>
+  body {
+  font-family: Arial, sans-serif;
+  direction: rtl; /* for right-to-left text alignment */
+}
+
+h1 {
+  text-align: center;
+}
+
+label, select {
+  display: block;
+  margin-bottom: 10px;
+}
+
+select, input[type="date"], input[type="number"] {
+  width: 190px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+button1 {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button1:hover {
+  background-color: #45a049;
+}
+
+.new-expense {
+  display: none;
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.expense {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.expense-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-expense-btn {
+  background-color: #f44336;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.delete-expense-btn:hover {
+  background-color: #da190b;
+}
+.search-container {
+  display: flex;
+  align-items: center;
+}
+
+label, input, select, button1 {
+  margin-right: 10px; /* add some spacing between elements */
+}
+
+</style>
+</head>
+<body>
+  <h1>اخراجات</h1>
+  <div class="search-container">
+    <label for="search-date">تاریخ</label>
+    <input type="date" id="search-date" name="search-date">
+    
+    <label for="search-expense-type">اخراجات کی قسم</label>
+    <select id="search-expense-type" name="search-expense-type">
+      <option value="پیٹرول">پیٹرول</option>
+      <option value="maintenance">وین کی بحالی</option>
+      <option value="کرایہ">کرایہ</option>
+      <option value="دوسرے">دوسرے</option>
+    </select>  
+    <label for="search-car-type">گاڑی:</label>
+    <select id="search-car-type" name="search-car-type">
+      <option value="AAH-207">AAH-207</option>
+      <option value="LEB7835">LEB7835</option>
+      <option value="SLT-1518">SLT-1518</option>
+      <option value="LEE-6774">LEE-6774</option>
+    </select>  
+    <button1 id="search-expenses-btn">تلاش کرو</button1> 
+  </div>
+  
+
+<br>
+<br>
+
+  <button1 id="add-expense-btn">نیا کرچہ+</button1>
+  <div id="new-expense" class="new-expense">
+ 
+    <label for="expense-type">اخراجات کی قسم:</label>
+    <select id="expense-type" name="expense-type">
+      <option value="پیٹرول">پیٹرول</option>
+      <option value="maintenance">وین کی بحالی</option>
+      <option value="کرایہ">کرایہ</option>
+      <option value="دوسرے">دوسرے</option>
+    </select>
+    <br>
+    <label for="car-type">کار کی قسم:</label>
+    <select id="car-type" name="car-type">
+      <option value="AAH-207">AAH-207</option>
+      <option value="LEB7835">LEB7835</option>
+      <option value="SLT-1518">SLT-1518</option>
+      <option value="LEE-6774">LEE-6774</option>
+    </select>
+    <br>
+    <label for="total-price">کل رقم:</label>
+    <input type="number" id="total-price" name="total-price">
+    <button id="save-expense-btn">اخراجات شامل کریں</button>
+  </div>
+  <div id="expense-list"></div>
+
+  <script>
+    const addExpenseBtn = document.getElementById('add-expense-btn');
+    const newExpenseDiv = document.getElementById('new-expense');
+    const saveExpenseBtn = document.getElementById('save-expense-btn');
+    const expenseListDiv = document.getElementById('expense-list');
+    const expenseTypeSelect = document.getElementById('expense-type');
+    const carTypeSelect = document.getElementById('car-type');
+    const totalPriceInput = document.getElementById('total-price');
+    const searchExpensesBtn = document.getElementById('search-expenses-btn');
+
+    let expenses = [];
+
+
+
+
+
+    
+    function searchExpenses() {
+  const searchDate = new Date(document.getElementById('search-date').value);
+  const searchExpenseType = document.getElementById('search-expense-type').value.trim().toLowerCase();
+  const searchCarType = document.getElementById('search-car-type').value.trim().toLowerCase();
+
+  const filteredExpenses = expenses.filter(expense => {
+    const expenseDate = new Date(expense.date);
+    const expenseExpenseType = expense.expenseType.trim().toLowerCase();
+    const expenseCarType = expense.carType.trim().toLowerCase();
+
+    if (searchDate && searchDate.toDateString() !== expenseDate.toDateString()) {
+      return false;
+    }
+
+    if (searchExpenseType && expenseExpenseType.indexOf(searchExpenseType) === -1) {
+      return false;
+    }
+
+    if (searchCarType && expenseCarType.indexOf(searchCarType) === -1) {
+      return false;
+    }
+
+    return true;
+  });
+
+  renderExpenses(filteredExpenses);
+}
+
+    function showNewExpenseForm() {
+      newExpenseDiv.style.display = 'block';
+    }
+
+
+    function hideNewExpenseForm() {
+      newExpenseDiv.style.display = 'none';
+    }
+
+    function addExpense() {
+      const expense = {
+
+        date: new Date(),
+        expenseType: expenseTypeSelect.value,
+        carType: carTypeSelect.value,
+        totalPrice: totalPriceInput.value
+      };
+      expenses.push(expense);
+      renderExpenses();
+      hideNewExpenseForm();
+
+    }
+
+    function deleteExpense(index) {
+      expenses.splice(index, 1);
+      renderExpenses();
+
+    }
+
+//     function renderExpenses(filteredExpenses = expenses) {
+//   let html = '';
+//   let total = 0;
+//   filteredExpenses.forEach((expense, index) => {
+//     total += parseInt(expense.totalPrice);
+//     const date = expense.date ? expense.date.toLocaleString() : '';
+//     html += `<div>${date} - ${expense.expenseType} - ${expense.carType} - ${expense.totalPrice}
+//     <button onclick="deleteExpense(${index})">delete</button>
+//     </div>`;
+//   });
+
+// html += `<div style="font-weight: bold; font-size: 30px;">کل رقم: ${total}</div>`;
+//   expenseListDiv.innerHTML = html;
+// }
+function renderExpenses(filteredExpenses = expenses) {
+  let html = '';
+  let total = 0;
+  html += `<table style="border-collapse: collapse; width: 100%;">
+            <thead>
+              <tr>
+                <th style="border: 1px solid black; padding: 5px;">تاریخ</th>
+                <th style="border: 1px solid black; padding: 5px;"> اخراجات کی قسم</th>
+                <th style="border: 1px solid black; padding: 5px;"> گاری قسم</th>
+                <th style="border: 1px solid black; padding: 5px;">رقم</th>
+                <th style="border: 1px solid black; padding: 5px;"></th>
+              </tr>
+            </thead>
+            <tbody>`;
+
+  filteredExpenses.forEach((expense, index) => {
+    total += parseInt(expense.totalPrice);
+    const date = expense.date ? new Date(expense.date).toLocaleDateString() : '';
+    html += `<tr>
+              <td style="border: 1px solid black; padding: 5px;">${date}</td>
+              <td style="border: 1px solid black; padding: 5px;">${expense.expenseType}</td>
+              <td style="border: 1px solid black; padding: 5px;">${expense.carType}</td>
+              <td style="border: 1px solid black; padding: 5px;">${expense.totalPrice}</td>
+              <td style="border: 1px solid black; padding: 5px;">
+                <button onclick="deleteExpense(${index})">Delete</button>
+              </td>
+            </tr>`;
+  });
+
+ html += `<div style="font-weight: bold; font-size: 30px;">کل رقم: ${total}</div>`;
+  expenseListDiv.innerHTML = html;
+
+  expenseListDiv.innerHTML = html;
+}
+
+
+function saveExpenses() {
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+}
+
+function loadExpenses() {
+  const savedExpenses = localStorage.getItem('expenses');
+  if (savedExpenses) {
+    expenses = JSON.parse(savedExpenses);
+    renderExpenses();
+  }
+}
+
+loadExpenses();
+addExpenseBtn.addEventListener('click', showNewExpenseForm);
+saveExpenseBtn.addEventListener('click', addExpense);
+searchExpensesBtn.addEventListener('click', searchExpenses);
+
+window.addEventListener('unload', saveExpenses);
+
+ </script>
+</body>
+</html> 
+

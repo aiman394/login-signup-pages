@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students</title>
+    <style>
+      #searchInput {
+      width: 200px;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      box-shadow: 1px 1px 5px #4CAF50;
+      font-size: 16px;
+      margin-bottom: 20px;
+      margin-left: 30%
+      ;
+    }
+       table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  text-align: center;
+}
+
+td {
+  text-align: center;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+h1{
+    margin-left: 40%;
+}
+input[type=text], input[type=date] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  width: 500px;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+#addStudentForm {
+  display: none;
+  background-color: #f2f2f2;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+}
+
+#addStudentForm label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+      </style>
+<head>
+  <script>
+      function addStudent() {
+          // get input values
+          var name = document.getElementById("name").value;
+          var university = document.getElementById("university").value;
+          var address = document.getElementById("address").value;
+          var admissionDate = document.getElementById("admissionDate").value;
+          var rent = document.getElementById("rent").value;
+          var paid = false; // initialize paid to false
+
+          // create a new row with input values
+          var table = document.getElementById("studentTable");
+          var row = table.insertRow(-1);
+          var nameCell = row.insertCell(0);
+          var universityCell = row.insertCell(1);
+          var addressCell = row.insertCell(2);
+          var admissionDateCell = row.insertCell(3);
+          var rentCell = row.insertCell(4);
+          var paidCell = row.insertCell(5);
+          var deleteCell = row.insertCell(6);
+          nameCell.innerHTML = name;
+          universityCell.innerHTML = university;
+          addressCell.innerHTML = address;
+          admissionDateCell.innerHTML = admissionDate;
+          rentCell.innerHTML = rent;
+          paidCell.innerHTML = '<input type="checkbox" onclick="updatePaidStatus(this)">'; // add checkbox
+          deleteCell.innerHTML = '<button onclick="deleteStudent(this)">Delete</button>';
+
+          // save the new row to local storage
+          var tableHtml = table.innerHTML;
+          localStorage.setItem("studentTable", tableHtml);
+
+          // clear input fields
+          document.getElementById("name").value = "";
+          document.getElementById("university").value = "";
+          document.getElementById("address").value = "";
+          document.getElementById("admissionDate").value = "";
+          document.getElementById("rent").value = "";
+      }
+
+      function deleteStudent(button) {
+          // get the row index of the clicked delete button
+          var table = document.getElementById("studentTable");
+          var rowIndex = button.parentNode.parentNode.rowIndex;
+
+          // delete the row from the table
+          table.deleteRow(rowIndex);
+
+          // save the updated table to local storage
+          var tableHtml = table.innerHTML;
+          localStorage.setItem("studentTable", tableHtml);
+
+      }
+
+
+function loadStudentTable() {
+    // load the student table from local storage
+    var tableHtml = localStorage.getItem("studentTable");
+    if (tableHtml) {
+        var table = document.getElementById("studentTable");
+        table.innerHTML = tableHtml;
+
+        // get the total number of rows in the table
+        var rowCount = table.rows.length - 1; // exclude header row
+
+        // loop through rows and update row color if paid
+        var totalPaidRent = 0; // initialize total paid rent to 0
+        for (var i = 1; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            var paidCell = row.cells[5];
+            if (paidCell.firstChild.checked) {
+                row.style.backgroundColor = "lightgreen";
+                row.cells[3].innerHTML = new Date().toLocaleDateString(); // add date to row if paid
+                totalPaidRent += parseInt(row.cells[4].innerHTML); // add rent to total paid rent
+            }
+            
+        }
+  
+        // calculate total rent of all students
+        var totalRent = 0;
+        for (var i = 1; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            var rentCell = row.cells[4];
+            totalRent += parseInt(rentCell.innerHTML);
+        }
+
+        // display the total number of students and total rent
+        var totalStudents = document.getElementById("totalStudents");
+        totalStudents.innerHTML = '<div id="totalStudents" style="font-weight:bold;margin-left:28%; font-size:30px;">کل طلباء: ' + rowCount + ',  کل کرایہ: ' + totalRent + '</div>';
+
+      
+        // search functionality
+        var searchInput = document.getElementById("searchInput");
+        searchInput.addEventListener("input", function () {
+            var filter = searchInput.value.toLowerCase();
+            for (var i = 1; i < table.rows.length; i++) {
+                var row = table.rows[i];
+                var nameCell = row.cells[0];
+                var displayStyle = "";
+                if (filter && nameCell.innerHTML.toLowerCase().indexOf(filter) === -1) {
+                    displayStyle = "none";
+                }
+                row.style.display = displayStyle;
+            }
+        });
+        
+        // show all rows by default
+        for (var i = 1; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            row.style.display = "";
+        }
+    }
+
+}
+
+
+
+function updatePaidStatus(checkbox) {
+  // get the row index of the clicked checkbox
+  var table = document.getElementById("studentTable");
+  var rowIndex = checkbox.parentNode.parentNode.rowIndex;
+
+  // update row color and paid status based on checkbox value and payment date
+  var row = table.rows[rowIndex];
+  if (checkbox.checked) {
+    row.style.backgroundColor = "lightgreen";
+    var date = new Date();
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+    var dateString = day + "/" + month + "/" + year;
+    var paidCell = row.cells[5];
+    paidCell.innerHTML = "ادا کیا (" + dateString + ")";
+    // store checkbox status in local storage
+    localStorage.setItem("checkboxStatus_" + rowIndex, "checked");
+  } else {
+    var paidDateCell = row.cells[4];
+    var paidDateString = paidDateCell.innerHTML;
+    var paidDate = new Date(paidDateString);
+    var currentDate = new Date();
+    var timeDiff = Math.abs(currentDate.getTime() - paidDate.getTime());
+    var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+    if (diffDays > 30) {
+      row.style.backgroundColor = "white";
+      var paidCell = row.cells[5];
+      paidCell.innerHTML = "نئے مہینے کی فیس ادا نہیں کی۔";
+    } else {
+      row.style.backgroundColor = "";
+      var paidCell = row.cells[5];
+      paidCell.innerHTML = '<input type="checkbox" onclick="updatePaidStatus(this)">';
+    }
+    // remove checkbox status from local storage
+    localStorage.removeItem("checkboxStatus_" + rowIndex);
+    // calculate total paid rent
+    var totalPaidRent = parseInt(document.getElementById("totalPaidRent").innerHTML);
+    var rentCell = row.cells[4];
+    totalPaidRent -= parseInt(rentCell.innerHTML);
+    document.getElementById("totalPaidRent").innerHTML = totalPaidRent;
+  }
+
+  // save the updated table to local storage
+  var tableHtml = table.innerHTML;
+  localStorage.setItem("studentTable", tableHtml);
+}
+
+
+
+
+
+
+
+// restore checkbox status from local storage on page load
+
+
+
+
+
+
+window.onload = function() {
+  var table = document.getElementById("studentTable");
+  for (var i = 1; i < table.rows.length; i++) {
+    var row = table.rows[i];
+    var checkbox = row.cells[0].getElementsByTagName("input")[0];
+    var checkboxStatus = localStorage.getItem("checkboxStatus_" + i);
+    if (checkboxStatus === "checked") {
+      checkbox.checked = true;
+      row.style.backgroundColor = "lightgreen";
+      var date = new Date();
+      var day = date.getDate();
+      var month = date.getMonth() + 1;
+      var year = date.getFullYear();
+      var dateString = day + "/" + month + "/" + year;
+      var paidCell = row.cells[5];
+      paidCell.innerHTML = "ادا کیا (" + dateString + ")";
+    }
+  }
+};
+
+
+  </script>
+</head>
+
+
+<body onload="loadStudentTable()">
+    <div>
+        <h1>طلباء</h1>
+
+        <input type="text" id="searchInput" placeholder="Search by name">
+
+        <button onclick="document.getElementById('addStudentForm').style.display='block'">نیا طالب علم+</button>
+        <p id="totalStudents"></p>
+        <p style="color: red; font-weight: bold; margin-left:12%">نوٹ: جب فیس کی ادائیگی کے لیے مہینہ مکمل ہو جاتا ہے تو اس کا رنگ سفید ہو جاتا ہے، پھر آپ فیس کی ادائیگی پر دوبارہ نشان لگا دیتے ہیں یہ سبز ہو جائے گا۔</p>
+
+    </div>
+    <div id="addStudentForm" style="display:none">
+        <label for="name">طالب علم کا نام:</label>
+        <input type="text" id="name"><br>
+        <label for="university">یونیورسٹی:</label>
+        <input type="text" id="university"><br>
+        <label for="address">پتہ:</label>
+        <input type="text" id="address"><br>
+        <label for="admissionDate"> داخلہ کا دن:</label>
+        <input type="date" id="admissionDate"><br>
+        <label for="rent">کرایہ:</label>
+        <input type="text" id="rent"><br>
+        <button onclick="addStudent()">طالب علم شامل کریں </button>
+    </div>
+    <table id="studentTable">
+      <tr>
+        <th>نام</th>
+        <th>یونیورسٹی </th>
+            <th>پتہ</th>
+            <th> داخلہ کا دن</th>
+            <th>کرایہ</th>
+            <th>delete</th>
+        </tr>
+        </table>
+    </body>
+    </html>

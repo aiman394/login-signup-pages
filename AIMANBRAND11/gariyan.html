@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> vans </title>
+    <style>
+        body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #555;
+}
+
+#vans {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#vans div {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+}
+
+#vans div button {
+  background-color: #f44336;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#vans div button:hover {
+  background-color: #d32f2f;
+}
+
+#addVanBtn {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 3px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+#addVanBtn:hover {
+  background-color: #3e8e41;
+}
+
+#vanForm {
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+#vanForm label {
+  font-size: 16px;
+  color: #555;
+}
+
+#vanForm input[type="text"] {
+  border: none;
+  padding: 5px;
+  border-radius: 3px;
+  font-size: 16px;
+  color: #555;
+}
+
+#vanForm button {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#vanForm button:hover {
+  background-color: #3e8e41;
+}
+
+#vanCount {
+  font-size: 18px;
+  color: #555;
+  margin-top: 10px;
+}
+
+    </style>
+</head>
+<body>
+    <h1> میری گاڑیاں</h1>
+    
+    <div id="vans"></div>
+    <div id="vanCount"></div>
+
+    <button id="addVanBtn"> نئی گاڑی شامل کریں</button>
+
+    <div id="vanForm" style="display: none;">
+        <label for="vanNumber"> گاڑی کا نمبر  :</label>
+        <input type="text" id="vanNumber" />
+        <button id="submitVanBtn">گاڑی شامل کریں </button>
+    </div>
+
+    <script>
+        let vans = JSON.parse(localStorage.getItem('vans')) || [];
+
+        const renderVans = () => {
+            const vansDiv = document.getElementById('vans');
+            vansDiv.innerHTML = '';
+
+            vans.forEach((van, index) => {
+                const vanDiv = document.createElement('div');
+                vanDiv.innerHTML = ` ${van.number}`;
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = 'Delete';
+                deleteBtn.addEventListener('click', () => {
+                    vans.splice(index, 1);
+                    localStorage.setItem('vans', JSON.stringify(vans));
+                    renderVans();
+                });
+                vanDiv.appendChild(deleteBtn);
+                vansDiv.appendChild(vanDiv);
+            });
+
+            const vanCount = document.getElementById('vanCount');
+vanCount.innerHTML = `<span style="font-size: 30px; font-weight: bold;">کل گاڑیاں:</span> ${vans.length}`;
+
+        };
+
+        const addVanForm = document.getElementById('vanForm');
+        const addVanBtn = document.getElementById('addVanBtn');
+        const submitVanBtn = document.getElementById('submitVanBtn');
+        const vanNumberInput = document.getElementById('vanNumber');
+
+        addVanBtn.addEventListener('click', () => {
+            addVanForm.style.display = 'block';
+        });
+
+        submitVanBtn.addEventListener('click', () => {
+            const vanNumber = vanNumberInput.value;
+            vans.push({ number: vanNumber });
+            localStorage.setItem('vans', JSON.stringify(vans));
+            addVanForm.style.display = 'none';
+            renderVans();
+        });
+
+        renderVans();
+    </script>
+</body>
+</html>
